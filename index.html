@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة مؤقتة للطلاب</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+        }
+
+        #notification-bar {
+            background-color: #ffcc00;
+            color: #000000;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            font-size: 1.1em;
+        }
+
+        header {
+            background-color: #87cefa;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        header #logo {
+            max-width: 150px;
+        }
+
+        header h1 {
+            margin: 10px 0;
+        }
+
+        header #subtitle {
+            font-size: 1.2em;
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+        #countdown {
+            margin-bottom: 20px;
+        }
+
+        #timer {
+            font-size: 2em;
+            background-color: #ffff00;
+            color: #000000;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #months {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .month {
+            display: inline-block;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1.2em;
+            color: #ffffff;
+            margin: 5px;
+            opacity: 0;
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .month.active {
+            opacity: 1;
+        }
+
+        .month.current-month {
+            border: 2px solid #000;
+            box-shadow: 0 0 10px #ff0000;
+        }
+
+        #cta button {
+            background-color: #32cd32;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #cta button:hover {
+            background-color: #28a745;
+        }
+
+        footer {
+            background-color: #87cefa;
+            color: #ffffff;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .social-links a {
+            color: #ffffff;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaaaaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="logo.png" alt="شعار فريق صناع المستقبل" id="logo">
+        <h1>استعد لامتحانات البكالوريا</h1>
+        <p id="subtitle">مستقبلك بين يديك</p>
+    </header>
+    <main>
+        <section id="countdown">
+            <h2>العد التنازلي للامتحانات :</h2>
+            <div id="timer"></div>
+            <div id="months"></div>
+        </section>
+        <section id="cta">
+            <button onclick="location.href='https://t.me/FutureMakers2025'">انضم إلينا الآن</button>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 فريق صناع المستقبل. جميع الحقوق محفوظة.</p>
+        <div class="social-links">
+            <a href="https://t.me/FutureMakers2025">تليجرام</a>
+            <a href="https://chat.whatsapp.com/HA3eDiHD0gF2ayDMfWXXUJ">واتساب</a>
+            <a href="https://www.facebook.com/share/g/4eix83bxbjsyQpNk/?mibextid=A7sQZp">فيسبوك</a>
+        </div>
+    </footer>
+
+    <!-- نافذة منبثقة -->
+    <div id="welcome-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>مرحبًا بكم!</h2>
+            <p>مرحبا بكم في صفحة العد التنازلي للامتحانات. استعدوا جيدًا ونتمنى لكم التوفيق!</p>
+        </div>
+    </div>
+
+    <script>
+        function startCountdown() {
+            const eventDate = new Date("2025-06-15T00:00:00").getTime();
+
+            const colors = ["#ff9999", "#66b3ff", "#99ff99", "#ffcc99", "#ffb3e6", "#c2c2f0", "#ff6666", "#c4e17f", "#b3b3b3", "#ffb3b3", "#c4e1ff", "#ffebcc"];
+            const monthNames = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = eventDate - now;
+
+                if (distance < 0) {
+                    document.getElementById('timer').innerHTML = "الحدث قد بدأ!";
+                    document.getElementById('months').innerHTML = "";
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById('timer').innerHTML = `${days} أيام ${hours} ساعات ${minutes} دقائق ${seconds} ثوانٍ`;
+
+                // حساب الأشهر المتبقية
+                const monthsRemaining = Math.ceil(distance / (1000 * 60 * 60 * 24 * 30));
+                const monthsDiv = document.getElementById('months');
+                monthsDiv.innerHTML = "";
+
+                for (let i = 0; i < 12; i++) {
+                    let monthDiv = document.createElement('div');
+                    monthDiv.className = 'month';
+                    monthDiv.style.backgroundColor = colors[i];
+                    monthDiv.innerHTML = monthNames[i];
+
+                    if (i < monthsRemaining) {
+                        monthDiv.classList.add('active');
+                    }
+
+                    if (i === new Date().getMonth()) {
+                        monthDiv.classList.add('current-month');
+                    }
+
+                    monthsDiv.appendChild(monthDiv);
+                }
+            }
+
+            function showWelcomeModal() {
+                const modal = document.getElementById('welcome-modal');
+                const span = document.querySelector('.close');
+
+                modal.style.display = "block";
+
+                span.onclick = function() {
+                    modal.style.display = "none";
+                }
+
+                window.onclick = function(event) {
+                    if (event.target === modal) {
+                        modal.style.display = "none";
+                    }
+                }
+
+                // إخفاء النافذة المنبثقة بعد 5 ثوانٍ
+                setTimeout(() => {
+                    modal.style.display = "none";
+                }, 5000);
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+            window.onload = showWelcomeModal;
+        }
+
+        window.onload = startCountdown;
+    </script>
+</body>
+</html>
